@@ -1,1 +1,0 @@
-# Spectsgenie_backend
