@@ -1,18 +1,48 @@
 const express = require("express");
-const { getAllProducts, getProductById, addProduct } = require("../controller/productController");
-const authenticateToken = require("../middleware/authentiactToken"); // Import the middleware
+const { getAllProducts, getProductById, addProduct,getProductsByDynamicQuery } = require("../controller/productController");
+// const authenticateToken = require("../middleware/authenticateToken"); // Import the middleware
+const axios = require("axios"); // Import axios
 
-//router object
+
+// Router object
 const router = express.Router();
 
-//get all products
-router.get("/allProducts", authenticateToken,getAllProducts);
+// Function to generate Google Drive image URL
+function generateGoogleDriveImageUrl(fileId) {
+    return `https://drive.google.com/uc?export=view&id=${fileId}`;
+}
 
-//get product by ID
-router.get("/getProductById/:id", authenticateToken, getProductById)
+// Route to get image by Google Drive file ID
+router.get("/getimage/:id", async (req, res) => {
+    const fileId = req.params.id; // Get the file ID from the URL
+    const imageUrl = generateGoogleDriveImageUrl(fileId); // Generate the image URL
 
-//Add Product
-router.post("/addProduct",authenticateToken, addProduct)
+    try {
+        // Fetch the image from Google Drive
+        const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
+        
+        // Set the appropriate content type
+        res.set("Content-Type", response.headers["content-type"]);
+        
+        // Send the image data as the response
+        res.send(response.data);
+    } catch (error) {
+        console.error("Error fetching image:", error.message);
+        res.status(404).send("Image not found or access denied.");
+    }
+});
+
+router.post("/query", getProductsByDynamicQuery);
+// Get all products
+router.get("/allProducts", getAllProducts);
+
+// Get product by ID
+router.get("/getProductById/:id", getProductById);
+
+// Add Product
+router.post("/addProduct", addProduct);
 
 
-module.exports = router
+
+
+module.exports = router;
