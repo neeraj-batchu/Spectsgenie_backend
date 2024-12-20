@@ -5,48 +5,57 @@ const pool = require('../config/db'); // Import the MySQL pool
 
 const router = express.Router();
 
-// Mock user database
-const users = [
-  { id: 1, username: 'user1', password: '$2b$10$zc8jg8kCO7iTruxAaebClupEoEPySq/BGPeBa/EIOBVI1IGLz.0la', role: 'user' }, // password: 'test123'
-];
-
 // Login API
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   console.log("Request body:", req.body); // Log request body
 
-  const user = users.find((u) => u.username === username);
-
-  console.log("Found user:", user); // Log the user found
-
-  if (!user) {
-    return res.status(401).json({ message: 'Invalid credentials' });
+  // Validate inputs
+  if (!username || !password) {
+    return res.status(400).json({ message: 'Username and password are required' });
   }
-
-  const passwordMatch = await bcrypt.compare(password, user.password);
-
-  console.log("Password match result:", passwordMatch); // Log the bcrypt compare result
-
-  if (!passwordMatch) {
-    return res.status(401).json({ message: 'Invalid credentials' });
-  }
-
-  const accessToken = generateAccessToken(user);
-  const refreshToken = generateRefreshToken(user);
 
   try {
-    // Save tokens into the authentication_details table using raw SQL query
-    const [results] = await pool.execute(
-      `INSERT INTO authentication_details (user_name, token, refresh_token, created_date_time, updated_date_time) 
-      VALUES (?, ?, ?, NOW(), NOW())`,
-      [user.username, accessToken, refreshToken]
+    // Query the sg_customer_online table to get the user by email
+    const [rows] = await pool.execute(
+      `SELECT id, name, password FROM sg_customer_online WHERE email = ?`,
+      [username]
     );
 
-    res.json({ accessToken, refreshToken });
+    const user = rows[0];
+
+    console.log("Found user:", user); // Log the user found
+
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Compare the provided password with the hashed password in the database
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    console.log("Password match result:", passwordMatch); // Log the bcrypt compare result
+
+    if (!passwordMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Generate tokens
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
+    const message = "success";
+
+    // Save tokens into the authentication_details table using raw SQL query
+    // await pool.execute(
+    //   `INSERT INTO authentication_details (user_name, token, refresh_token) 
+    //   VALUES (?, ?, ?)`,
+    //   [user.username, accessToken, refreshToken]
+    // );
+
+    res.json({ message, accessToken, refreshToken });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error saving tokens to the database' });
+    res.status(500).json({ message: 'Error processing login request' });
   }
 });
 
@@ -55,6 +64,11 @@ router.post('/logout', async (req, res) => {
   const { username, refreshToken } = req.body;
 
   console.log("Request body:", req.body); // Log request body
+
+  // Validate inputs
+  if (!username || !refreshToken) {
+    return res.status(400).json({ message: 'Username and refresh token are required' });
+  }
 
   try {
     // Delete the tokens from the database for the specified user
@@ -74,4 +88,4 @@ router.post('/logout', async (req, res) => {
   }
 });
 
-module.exports = router; 
+module.exports = router;
