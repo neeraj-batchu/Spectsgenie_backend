@@ -30,30 +30,78 @@ const getAllProducts = async (req, res) => {
 // Get Product by ID
 const getProductById = async (req, res) => {
     try {
-        const productId = req.params.id;
-        const data = await db.query("SELECT * FROM sg_product WHERE pr_id = ?", [productId]);
-        if (!data) {
-            res.status(404).send({
+        const productId = parseInt(req.params.id, 10); // Ensure productId is a number
+        if (isNaN(productId)) {
+            return res.status(400).send({
                 success: false,
-                message: "No records found"
-            })
-        } else {
-            res.status(200).send({
-                success: true,
-                message: "Records fetched",
-                data: data[0],
-                totalRecords: data[0].length
-            })
+                message: "Invalid product ID",
+                data: [],
+                totalRecords: 0,
+                similarProducts: []
+            });
         }
+
+        // Query the database
+        const queryResult = await db.query(
+            "SELECT * FROM sg_product WHERE parent_product_id IN (SELECT parent_product_id FROM sg_product WHERE pr_id = ?)", 
+            [productId]
+        );
+
+        console.log("Raw query result:", queryResult);
+
+        // Extract rows from the query result
+        const rows = queryResult[0]; // Only use the first element (rows)
+        console.log("Extracted rows:", rows);
+
+        if (!rows || rows.length === 0) {
+            return res.status(404).send({
+                success: false,
+                message: "No records found",
+                data: [],
+                totalRecords: 0,
+                similarProducts: []
+            });
+        }
+
+        // Find the requested product
+        const requestedProduct = rows.find(product => Number(product.pr_id) === productId);
+        if (!requestedProduct) {
+            console.error("Requested product not found in fetched data:", productId, rows);
+            return res.status(404).send({
+                success: false,
+                message: "Requested product not found",
+                data: [],
+                totalRecords: 0,
+                similarProducts: []
+            });
+        }
+
+        // Extract similar products
+        const similarProducts = rows
+            .filter(product => Number(product.pr_id) !== productId) // Exclude the requested product
+            .map(product => ({
+                pr_id: product.pr_id,
+                slug: product.slug
+            }));
+
+        // Send the response
+        res.status(200).send({
+            success: true,
+            message: "Records fetched",
+            data: [requestedProduct], // Wrap requested product in an array
+            totalRecords: 1,
+            similarProducts
+        });
     } catch (error) {
-        console.log(error);
+        console.error("Error:", error); // Debugging
         res.status(400).send({
             success: false,
             message: "Something went wrong",
             error
-        })
+        });
     }
-}
+};
+
 
 // Add Product
 const addProduct = async (req, res) => {

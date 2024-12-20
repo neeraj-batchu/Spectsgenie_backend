@@ -33,6 +33,7 @@ app.use("/cart", require("./routes/cart"));
 app.use("/lens", require("./routes/contactLens"));
 app.use("/wishlist", require("./routes/wishlist"));
 app.use("/discount", require("./routes/coupons"));
+app.use("/profile", require("./routes/profile"));
 
 // Test route
 app.get('/test', (req, res) => {
