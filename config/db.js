@@ -4,7 +4,7 @@ const mySqlPool = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: 'root',
-    database: 'my_database'
+    database: 'spectsgenie'
 })
 
 module.exports = mySqlPool;
