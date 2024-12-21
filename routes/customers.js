@@ -1,21 +1,20 @@
 const express = require("express");
 const { getAllCustomers, getCustomerById, addNewCustomer, getCustomerAddresses } = require("../controller/customersController");
-const authenticateToken = require("../middleware/authentiactToken"); // Import the middleware
 
 //router object
 const router = express.Router();
 
 //get all products
-router.get("/allCustomers",authenticateToken, getAllCustomers);
+router.get("/allCustomers", getAllCustomers);
 
 //get product by ID
-router.get("/getCustomerById/:id", authenticateToken, getCustomerById)
+router.get("/getCustomerById/:id",  getCustomerById)
 
 //Add Product
-router.post("/addCustomer", authenticateToken, addNewCustomer)
+router.post("/addNewCustomer",  addNewCustomer)
 
 //Get customer addresses
-router.get("/getCustomerAddresses/:id", authenticateToken, getCustomerAddresses)
+router.get("/getCustomerAddresses/:id",  getCustomerAddresses)
 
 
 module.exports = router
