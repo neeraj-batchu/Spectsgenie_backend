@@ -55,9 +55,10 @@ const getCustomerById = async (req,res) => {
     }
 }
 
-//Add Product
+//Add user
 const addNewCustomer = async (req, res) => {
     try {
+        console.log("Start of function");
         const {
             name,
             password,
@@ -65,53 +66,45 @@ const addNewCustomer = async (req, res) => {
             email,
             referral_code,
             is_google_user,
-            google_profile_id
+            google_profile_id,
         } = req.body;
 
-        // Input validation (optional but recommended)
         if (!name || !password || !mobile || !email) {
+            console.log("Validation failed");
             return res.status(400).json({
                 success: false,
                 message: "Required fields are missing: name, password, mobile, email",
             });
         }
 
-        // SQL query
-        const query = `
-            INSERT INTO sg_customer_online (
-                name, password, mobile, email, referral_code, 
-                is_google_user, google_profile_id
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        const bcrypt = require('bcrypt');
+        console.log("Hashing password...");
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const sqlQuery = `
+            INSERT INTO sg_customer_online(name, password, mobile, email, referral_code, is_google_user, google_profile_id)   
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
 
-        // Values to insert
         const values = [
             name,
-            password,
+            hashedPassword,
             mobile,
             email,
-            referral_code || "", // Optional field
-            is_google_user || 0, // Default to 0 if not provided
-            google_profile_id || "" // Optional field
+            referral_code || null,
+            is_google_user || null,
+            google_profile_id || null,
         ];
 
-        // Execute query
-        db.query(query, values, (err, result) => {
-            if (err) {
-                console.error("Error inserting customer data:", err);
-                return res.status(500).json({
-                    success: false,
-                    message: "Failed to insert customer data",
-                    error: err.message,
-                });
-            }
+        console.log("Executing query...");
+        const result = await db.query(sqlQuery, values);  // Directly use db.query without promisify
 
-            // Successful insertion
-            res.status(201).json({
-                success: true,
-                message: "Customer added successfully",
-                customerId: result.insertId, // Return the new customer's ID
-            });
+        console.log("Query successful:", result);
+
+        res.status(201).json({
+            success: true,
+            message: "Customer added successfully",
+            customerId: result.insertId,
         });
     } catch (error) {
         console.error("Unexpected error:", error);
@@ -122,6 +115,12 @@ const addNewCustomer = async (req, res) => {
         });
     }
 };
+
+
+
+
+
+
 
 //Get Addresses by ID
 const getCustomerAddresses = async (req,res) => {

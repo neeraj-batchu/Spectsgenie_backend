@@ -21,19 +21,20 @@ app.use(morgan('dev'));
 // Public routes
 app.use("/api/product", require("./routes/products"));
 
-// Authentication route
-app.use('/auth', require("./authentication/login"));
-
-// Apply token validation globally (except for public routes
-
 // Routes
 app.use("/order", require("./routes/orders"));
 app.use("/customer", require("./routes/customers"));
 app.use("/cart", require("./routes/cart"));
-app.use("/lens", require("./routes/contactLens"));
+app.use("/contactLens", require("./routes/contactLens"));
 app.use("/wishlist", require("./routes/wishlist"));
 app.use("/discount", require("./routes/coupons"));
 app.use("/profile", require("./routes/profile"));
+app.use("/authenticate", require("./routes/login"));
+app.use("/lens", require("./routes/lensTypes"));
+
+
+// Authentication route
+// app.use('/auth', require("./authentication/login"));
 
 // Test route
 app.get('/test', (req, res) => {
