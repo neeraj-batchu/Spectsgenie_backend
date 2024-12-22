@@ -4,7 +4,7 @@ const db = require("../config/db");
 const getProfileDetails = async (req,res) => {
     try {
         const customerId = req.params.id;
-        const data = await db.query("SELECT * FROM sg_customer_online WHERE id = ?",[customerId] );
+        const data = await db.query("SELECT * FROM user_profile_activity WHERE id = ?",[customerId] );
         if(!data){
             res.status(404).send({
                 success: false,

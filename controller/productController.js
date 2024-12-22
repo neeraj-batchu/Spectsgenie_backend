@@ -78,7 +78,7 @@ const getProductById = async (req, res) => {
 
         // Extract similar products
         const similarProducts = rows
-            .filter(product => Number(product.pr_id) !== productId) // Exclude the requested product
+            // .filter(product => Number(product.pr_id) !== productId) // Exclude the requested product
             .map(product => ({
                 pr_id: product.pr_id,
                 slug: product.slug
@@ -243,4 +243,41 @@ const getProductsByDynamicQuery = async (req, res) => {
     }
 }
 
-module.exports = { getAllProducts, getProductById, addProduct, getProductsByDynamicQuery };
+const getWishlistStatusById = async (req, res) => {
+    try {
+      const { productId, customerId } = req.query;  // Access query parameters
+  
+      if (!productId || !customerId) {
+        return res.status(400).send({
+          success: false,
+          message: "Product ID and Customer ID are required"
+        });
+      }
+  
+      const data = await db.query("SELECT is_active FROM sg_wishlist WHERE product_id = ? AND customer_id = ?", [productId, customerId]);
+      console.log("wishlist status",data)
+      if (data.length === 0) {
+        return res.status(404).send({
+          success: false,
+          message: "No records found"
+        });
+      } else {
+        res.status(200).send({
+          success: true,
+          message: "Records fetched",
+          data: data[0],
+          totalRecords: data.length  // Corrected totalRecords
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(400).send({
+        success: false,
+        message: "Something went wrong",
+        error
+      });
+    }
+  };
+  
+
+module.exports = { getAllProducts, getProductById, addProduct, getProductsByDynamicQuery , getWishlistStatusById};

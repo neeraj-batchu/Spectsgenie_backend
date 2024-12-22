@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllProducts, getProductById, addProduct,getProductsByDynamicQuery } = require("../controller/productController");
+const { getAllProducts, getProductById, addProduct,getProductsByDynamicQuery, getWishlistStatusById } = require("../controller/productController");
 // const authenticateToken = require("../middleware/authenticateToken"); // Import the middleware
 const axios = require("axios"); // Import axios
 
@@ -42,7 +42,7 @@ router.get("/getProductById/:id", getProductById);
 // Add Product
 router.post("/addProduct", addProduct);
 
-
+router.get("/getWishlistStatus", getWishlistStatusById);
 
 
 module.exports = router;
