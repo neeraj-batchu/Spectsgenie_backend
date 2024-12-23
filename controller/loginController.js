@@ -1,6 +1,7 @@
 const db = require("../config/db");
 const axios = require('axios');
-require('dotenv').config(); 
+const { OAuth2Client } = require("google-auth-library");
+require("dotenv").config();
 const { generateAccessToken, generateRefreshToken } = require('../auth/jwtUtils');
 
 const sendOTP = async (req, res) => {
@@ -88,6 +89,75 @@ const verifyOTP = async (req, res) => {
   }
 
   };
+
+  const loginWithGoogle = async (req, res) => {
+    const { token } = req.body;
+    const client = new OAuth2Client("1090627998498-rqrbs7ur7vrfi6nk4k0labr1k07m1pah.apps.googleusercontent.com");
+
+    try {
+        // Verify the Google token
+        const ticket = await client.verifyIdToken({
+          idToken: token,
+          audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        
+        const payload = ticket.getPayload();
+        console.log("Decoded Payload:", payload);
+        
+        const googleProfileId = payload["sub"];
+        const email = payload["email"];
+        const name = payload["name"];
+
+        // Check if the user already exists
+        const [existingUser] = await db.query(
+            "SELECT * FROM sg_customer_online WHERE google_profile_id = ? OR email = ?",
+            [googleProfileId, email]
+        );
+
+        if (existingUser.length > 0) {
+            // User exists, log them in
+            const user = existingUser[0];
+            if (user.google_profile_id !== googleProfileId) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Google profile does not match our records.",
+                });
+            }
+
+            const accessToken = generateAccessToken(user.id, user.name);
+            const refreshToken = generateRefreshToken(user.id, user.name);
+
+            return res.status(200).json({
+                success: true,
+                message: "User logged in successfully.",
+                accessToken,
+                refreshToken,
+            });
+        } else {
+            // User does not exist, create a new record
+            const query = `INSERT INTO sg_customer_online (name, email, is_google_user, google_profile_id) VALUES (?, ?, ?, ?)`;
+            const result = await db.query(query, [name, email, 1, googleProfileId]);
+
+            const userId = result[0].insertId;
+            const accessToken = generateAccessToken(userId, name);
+            const refreshToken = generateRefreshToken(userId, name);
+
+            return res.status(201).json({
+                success: true,
+                message: "User registered and logged in successfully.",
+                accessToken,
+                refreshToken,
+            });
+        }
+    } catch (error) {
+        console.error("Error logging in with Google:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to log in with Google.",
+            error: error.message,
+        });
+    }
+};
   
   
 
@@ -100,4 +170,4 @@ function generateRandomSixDigitNumber() {
     await db.query(query, [phoneNumber, otp, otp]);
   };
 
-module.exports = {sendOTP, verifyOTP};
+  module.exports = { sendOTP, verifyOTP, loginWithGoogle };
