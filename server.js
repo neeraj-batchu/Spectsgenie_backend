@@ -3,6 +3,9 @@ const morgan = require('morgan');
 const dotenv = require('dotenv');
 const cors = require('cors'); // Import cors
 const mySqlPool = require('./config/db');
+const paymentRoutes = require("./routes/phonepeRoutes");
+const bodyParser = require("body-parser");
+
 const authenticateToken = require('./middleware/authentiactToken');
 
 // Configure dotenv
@@ -13,6 +16,8 @@ const app = express();
 
 // Enable CORS for all origins
 app.use(cors());
+app.use(bodyParser.json());
+
 
 // Middleware
 app.use(express.json());
@@ -22,6 +27,7 @@ app.use(morgan('dev'));
 app.use("/api/product", require("./routes/products"));
 
 // Routes
+app.use("/api/phonepe", paymentRoutes);
 app.use("/order", require("./routes/orders"));
 app.use("/customer", require("./routes/customers"));
 app.use("/cart", require("./routes/cart"));
