@@ -116,9 +116,47 @@ const addNewCustomer = async (req, res) => {
     }
 };
 
+const editCustomer = async (req, res) => {
+    try {
+        console.log("Start of function");
+        const {
+            name,
+            mobile,
+            email,
+            id
+        } = req.body;
 
+        const sqlQuery = `
+            UPDATE sg_customer_online 
+            SET name = ?, mobile = ?, email = ? 
+            WHERE id = ?
+        `;
 
+        const values = [
+            name,
+            mobile,
+            email,
+            id
+        ];
 
+        console.log("Executing query...");
+        const result = await db.query(sqlQuery, values);  // Directly use db.query without promisify
+
+        console.log("Query successful:", result);
+
+        res.status(200).json({
+            success: true,
+            message: "Customer updated successfully",
+        });
+    } catch (error) {
+        console.error("Unexpected error:", error);
+        res.status(500).json({
+            success: false,
+            message: "An unexpected error occurred",
+            error: error.message,
+        });
+    }
+};
 
 
 
@@ -152,4 +190,4 @@ const getCustomerAddresses = async (req,res) => {
 
 
 
-module.exports = {getAllCustomers , getCustomerById, getCustomerAddresses, addNewCustomer};
+module.exports = {getAllCustomers , getCustomerById, getCustomerAddresses, addNewCustomer, editCustomer};

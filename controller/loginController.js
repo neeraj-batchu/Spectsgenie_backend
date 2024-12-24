@@ -21,7 +21,7 @@ const sendOTP = async (req, res) => {
     try {
       // Make the API call
       const response = await axios.get(url, { params });
-  
+      if(response.data.status === 'success'){
       // Save the OTP to the database
       await saveOTPToDatabase(phoneNumber, otp);
   
@@ -32,6 +32,13 @@ const sendOTP = async (req, res) => {
         success: true,
         message: 'OTP sent successfully',
       });
+      }else{
+        res.status(400).json({
+          success: true,
+          message: 'Failed to send OTP. Please try again.',
+        });
+      }
+
     } catch (error) {
       console.error('Error sending message:', error.response ? error.response.data : error.message);
   
@@ -92,7 +99,7 @@ const verifyOTP = async (req, res) => {
 
   const loginWithGoogle = async (req, res) => {
     const { token } = req.body;
-    const client = new OAuth2Client("1090627998498-rqrbs7ur7vrfi6nk4k0labr1k07m1pah.apps.googleusercontent.com");
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
     try {
         // Verify the Google token

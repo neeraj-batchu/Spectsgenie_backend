@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllCustomers, getCustomerById, addNewCustomer, getCustomerAddresses } = require("../controller/customersController");
+const { getAllCustomers, getCustomerById, addNewCustomer, getCustomerAddresses, editCustomer } = require("../controller/customersController");
 
 //router object
 const router = express.Router();
@@ -12,6 +12,8 @@ router.get("/getCustomerById/:id",  getCustomerById)
 
 //Add Product
 router.post("/addNewCustomer",  addNewCustomer)
+
+router.post("/editCustomer",  editCustomer)
 
 //Get customer addresses
 router.get("/getCustomerAddresses/:id",  getCustomerAddresses)
