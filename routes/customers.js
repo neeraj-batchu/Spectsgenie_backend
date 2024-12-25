@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllCustomers, getCustomerById, addNewCustomer, getCustomerAddresses, editCustomer } = require("../controller/customersController");
+const { getAllCustomers, getCustomerById, addNewCustomer, getCustomerAddresses, editCustomer, fetchFile } = require("../controller/customersController");
 
 //router object
 const router = express.Router();
