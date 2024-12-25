@@ -3,9 +3,13 @@ const axios = require('axios');
 const crypto = require('crypto');
 const cors = require("cors");
 const { v4: uuidv4 } = require('uuid');
+
 // Router object
 const router = express.Router();
 const app = express();
+const authenticateToken = require("../middleware/authentiactToken"); // Import the middleware
+const { addTransactionDetails } = require('../controller/transaction');
+
 
 app.use(express.json());
 app.use(cors());
@@ -19,9 +23,9 @@ const MERCHANT_BASE_URL = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1
 const MERCHANT_STATUS_URL = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status";
 
 // Redirect URLs
-const redirectUrl = "http://localhost:8080/cart";
-const successUrl = "http://localhost:8080/cart";
-const failureUrl = "http://localhost:8080/payment-failure";
+const redirectUrl = "http://localhost:8080/api/phonepe/status";
+const successUrl = "http://localhost:3000/payment-success";
+const failureUrl = "http://localhost:3000/payment-failure";
 
 // Endpoint to create payment order
 router.post('/create-order', async (req, res) => {
@@ -63,8 +67,7 @@ router.post('/create-order', async (req, res) => {
 
     try {
         const response = await axios.request(options);
-        // const redirectUrl = response.data.data.instrumentResponse.redirectInfo.url;
-        const redirectUrl = "http://localhost:8080/cart"
+        const redirectUrl = response.data.data.instrumentResponse.redirectInfo.url;
         console.log("Redirect URL:", redirectUrl);
         res.status(200).json({ msg: "OK", url: redirectUrl });
     } catch (error) {
@@ -108,5 +111,10 @@ router.post('/status', async (req, res) => {
         res.status(500).json({ error: 'Failed to retrieve payment status' });
     }
 });
+
+
+
+router.post("/addTransaction", authenticateToken, addTransactionDetails);
+
 
 module.exports = router;
