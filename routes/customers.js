@@ -18,5 +18,6 @@ router.post("/editCustomer",  editCustomer)
 //Get customer addresses
 router.get("/getCustomerAddresses/:id",  getCustomerAddresses)
 
+router.get("/getFile",  fetchFile)
 
 module.exports = router

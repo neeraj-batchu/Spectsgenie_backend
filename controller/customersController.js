@@ -1,4 +1,7 @@
 const db = require("../config/db");
+const axios = require('axios');
+const path = require('path'); // Import the path module
+const mime = require('mime-types'); // Import mime-types for MIME type detection
 
 //Get all Customers
 const getAllCustomers = async (req,res) => {
@@ -189,5 +192,29 @@ const getCustomerAddresses = async (req,res) => {
 }
 
 
+const fetchFile = async(req, res) => {
+    const { url } = req.query;
+  
+      if (!url) {
+          return res.status(400).json({ error: 'URL is required' });
+      }
+  
+ 
+      try {
+        console.log('Fetching URL:', url); // Log the URL
+        const response = await axios.get(url, { responseType: 'arraybuffer' });
 
-module.exports = {getAllCustomers , getCustomerById, getCustomerAddresses, addNewCustomer, editCustomer};
+        const fileExtension = path.extname(url).substring(1);
+        const mimeType = mime.lookup(fileExtension) || 'application/octet-stream';
+        const base64Data = Buffer.from(response.data, 'binary').toString('base64');
+        const dataUrl = `data:${mimeType};base64,${base64Data}`;
+
+        res.json({ data: dataUrl });
+    } catch (error) {
+        console.error('Error fetching the file:', error.response?.status, error.response?.data || error.message);
+        res.status(500).json({ error: `Failed to fetch the file: ${error.message}` });
+    }
+}
+
+
+module.exports = {getAllCustomers , getCustomerById, getCustomerAddresses, addNewCustomer, editCustomer, fetchFile};
