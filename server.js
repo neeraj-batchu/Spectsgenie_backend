@@ -37,6 +37,7 @@ app.use("/discount", require("./routes/coupons"));
 app.use("/profile", require("./routes/profile"));
 app.use("/authenticate", require("./routes/login"));
 app.use("/lens", require("./routes/lensTypes"));
+app.use("/address", require("./routes/address"));
 
 
 // Authentication route
