@@ -3,7 +3,7 @@ const db = require("../config/db");
 // Get all Products
 const getAllProducts = async (req, res) => {
     try {
-        const data = await db.query("SELECT * FROM getAllProduct");
+        const data = await db.query("SELECT * FROM spectsgenie.getAllProduct");
         if (!data) {
             res.status(404).send({
                 success: false,
@@ -201,7 +201,7 @@ const getProductsByDynamicQuery = async (req, res) => {
     let queryParams = [table];
 
     // Handle filters dynamically
-    if (filters.length === 0) {
+    if (filters.length > 0) {
         const whereClauses = filters.map((filter) => `?? = ?`).join(' AND ');
         query += ` WHERE ${whereClauses}`;
         filters.forEach((filter) => {
