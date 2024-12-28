@@ -1,5 +1,5 @@
 const express = require("express");
-const { getAllProducts, getProductById, addProduct,getProductsByDynamicQuery, getWishlistStatusById } = require("../controller/productController");
+const { getAllProducts, getProductById, addProduct,getProductsByDynamicQuery, getWishlistStatusById, getSimilarProductsByCategory } = require("../controller/productController");
 // const authenticateToken = require("../middleware/authenticateToken"); // Import the middleware
 const axios = require("axios"); // Import axios
 
@@ -38,6 +38,8 @@ router.get("/allProducts", getAllProducts);
 
 // Get product by ID
 router.get("/getProductById/:id", getProductById);
+
+router.get("/getSimilarProducts", getSimilarProductsByCategory);
 
 // Add Product
 router.post("/addProduct", addProduct);

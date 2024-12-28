@@ -43,7 +43,7 @@ const getProductById = async (req, res) => {
 
         // Query the database
         const queryResult = await db.query(
-            "SELECT * FROM sg_product WHERE parent_product_id IN (SELECT parent_product_id FROM sg_product WHERE pr_id = ?)", 
+            "SELECT * FROM complete_product_details WHERE parent_product_id IN (SELECT parent_product_id FROM sg_product WHERE pr_id = ?)", 
             [productId]
         );
 
@@ -278,6 +278,40 @@ const getWishlistStatusById = async (req, res) => {
       });
     }
   };
+
+  // Get Products by categoryID
+const getSimilarProductsByCategory = async (req, res) => {
+    try {
+        const { ca_id, pr_id } = req.query;  // Access query parameters
+
+        // Query the database
+        const data = await db.query(
+            "SELECT * FROM getallproduct WHERE ca_id = ? and pr_id != ? limit 30", 
+            [ca_id,pr_id]
+        );
+
+        if (!data) {
+            res.status(404).send({
+                success: false,
+                message: "No records found"
+            })
+        } else {
+            res.status(200).send({
+                success: true,
+                message: "Records fetched",
+                data: data[0],
+                totalRecords: data[0].length
+            })
+        }
+    } catch (error) {
+        console.error("Error:", error); // Debugging
+        res.status(400).send({
+            success: false,
+            message: "Something went wrong",
+            error
+        });
+    }
+};
   
 
-module.exports = { getAllProducts, getProductById, addProduct, getProductsByDynamicQuery , getWishlistStatusById};
+module.exports = { getAllProducts, getProductById, addProduct, getProductsByDynamicQuery , getWishlistStatusById, getSimilarProductsByCategory};
