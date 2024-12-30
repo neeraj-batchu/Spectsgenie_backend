@@ -120,4 +120,87 @@ const deleteAddress = async (req, res) => {
     }
 };
 
-module.exports = {addAddress,deleteAddress};
+//Get Address by ID
+const getAddressById = async (req,res) => {
+    try {
+        const id = req.params.id;
+        const data = await db.query("SELECT * FROM sg_customer_address WHERE id = ?",[id] );
+        if(!data){
+            res.status(404).send({
+                success: false,
+                message: "No records found"
+            })
+        }else{
+            res.status(200).send({
+                success: true,
+                message: "Records fetched",
+                data: data[0],
+                totalRecords: data[0].length
+            })
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(400).send({
+            success: false,
+            message: "Something went wrong",
+            error
+        })
+    }
+}
+
+const editAddress = async (req, res) => {
+    try {
+        console.log("Start of function");
+        const {
+            customerId,
+            addressName,
+            addressLine1,
+            addressLine2,
+            pincode,
+            city,
+            state,
+            country,
+            id
+        } = req.body;
+
+        // Corrected SQL query with the extra comma removed
+        const sqlQuery = `
+            UPDATE spectsgenie.sg_customer_address 
+            SET customer_id=?, address_name=?, address_line_1=?, address_line_2=?, pincode=?, city=?, state=?, country=? 
+            WHERE id=?`;
+
+        const values = [
+            customerId,
+            addressName,
+            addressLine1,
+            addressLine2,
+            pincode,
+            city,
+            state,
+            country,
+            id
+        ];
+
+        console.log("Executing query...");
+        const result = await db.query(sqlQuery, values);  // Directly use db.query without promisify
+
+        console.log("Query successful:", result);
+
+        res.status(200).json({
+            success: true,
+            message: "Customer updated successfully",
+        });
+    } catch (error) {
+        console.error("Unexpected error:", error);
+        res.status(500).json({
+            success: false,
+            message: "An unexpected error occurred",
+            error: error.message,
+        });
+    }
+};
+
+
+
+
+module.exports = {addAddress,deleteAddress, getAddressById, editAddress};

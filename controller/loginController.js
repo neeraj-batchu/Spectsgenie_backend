@@ -21,6 +21,7 @@ const sendOTP = async (req, res) => {
     try {
       // Make the API call
       const response = await axios.get(url, { params });
+      console.log(response)
       if(response.data.status === 'success'){
       // Save the OTP to the database
       await saveOTPToDatabase(phoneNumber, otp);
@@ -34,14 +35,14 @@ const sendOTP = async (req, res) => {
       });
       }else{
         res.status(400).json({
-          success: true,
+          success: false,
           message: 'Failed to send OTP. Please try again.',
         });
       }
 
     } catch (error) {
       console.error('Error sending message:', error.response ? error.response.data : error.message);
-  
+      console.error(error)
       // Handle error and send a response to the client
       res.status(500).json({
         success: false,

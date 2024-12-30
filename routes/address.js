@@ -1,5 +1,5 @@
 const express = require("express");
-const { addAddress, deleteAddress } = require("../controller/addressController");
+const { addAddress, deleteAddress, getAddressById, editAddress } = require("../controller/addressController");
 
 // Router object
 const router = express.Router();
@@ -9,5 +9,8 @@ router.post("/addAddress", addAddress);
 
 router.delete("/deleteAddress/:id", deleteAddress);
 
+router.get("/getAddressById/:id", getAddressById)
+
+router.post("/editAddress",  editAddress)
 
 module.exports = router;

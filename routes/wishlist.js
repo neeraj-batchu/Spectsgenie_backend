@@ -1,6 +1,6 @@
 const express = require("express");
 const authenticateToken = require("../middleware/authentiactToken"); // Import the middleware
-const { addWishlistItem, getWishlistItemsById, deleteProductFromWishlist } = require("../controller/wishlistController");
+const { addWishlistItem, getWishlistItemsById, deleteProductFromWishlist, deleteById } = require("../controller/wishlistController");
 
 // Router object
 const router = express.Router();
@@ -12,6 +12,8 @@ router.get("/myWishlist/:id", authenticateToken, getWishlistItemsById);
 router.post("/addWishlistItem", authenticateToken, addWishlistItem);
 
 router.delete("/deleteWishlistItem", authenticateToken, deleteProductFromWishlist);
+
+router.delete("/deleteById/:id", authenticateToken, deleteById);
 
 
 module.exports = router;
