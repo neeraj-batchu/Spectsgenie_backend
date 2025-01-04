@@ -1,5 +1,5 @@
 const express = require("express");
-const { getCartItemsById, addCartItem, deleteProductFromCart } = require("../controller/cartController");
+const { getCartItemsById, addCartItem, deleteProductFromCart, addContactLensToCart } = require("../controller/cartController");
 const authenticateToken = require("../middleware/authentiactToken"); // Import the middleware
 
 // Router object
@@ -12,6 +12,8 @@ router.get("/myCart/:id", authenticateToken, getCartItemsById);
 router.post("/addToCart", authenticateToken, addCartItem);
 
 router.delete("/deleteFromCart/:id", authenticateToken, deleteProductFromCart);
+
+router.post("/addContactLensToCart", authenticateToken, addContactLensToCart);
 
 
 module.exports = router;

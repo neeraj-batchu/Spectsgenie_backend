@@ -116,8 +116,46 @@ const deleteProductFromCart = async (req, res) => {
 };
 
 
+const addContactLensToCart = async (req, res) => {
+    try {
+        console.log("Start of function");
+        const { product_id, quantity, price, customer_id } = req.body;
+
+        // Input validation
+        if (!product_id || !price || !customer_id) {
+            console.log("Validation failed:", req.body);
+            return res.status(400).json({
+                success: false,
+                message: "Required fields are missing: product_id, price, customer_id",
+            });
+        }
+        const sqlQuery = `
+            INSERT INTO sg_cart (
+                product_id, quantity, price, customer_id
+            ) VALUES (?, ?, ?, ?)
+        `;
+
+        const values = [product_id, quantity, price, customer_id];
+
+        console.log("Executing query...");
+        const result = await db.query(sqlQuery, values); // Directly use db.query without promisify
+
+        console.log("Query successful:", result);
+
+        res.status(201).json({
+            success: true,
+            message: "Cart item added successfully",
+            cartItemId: result.insertId,
+        });
+    } catch (error) {
+        console.error("Unexpected error:", error);
+        res.status(500).json({
+            success: false,
+            message: "An unexpected error occurred",
+            error: error.message,
+        });
+    }
+};
 
 
-
-
-module.exports = {addCartItem , getCartItemsById, deleteProductFromCart};
+module.exports = {addCartItem , getCartItemsById, deleteProductFromCart, addContactLensToCart};
