@@ -37,7 +37,7 @@ router.post("/query", getProductsByDynamicQuery);
 router.get("/allProducts", getAllProducts);
 
 // Get product by ID
-router.get("/getProductById/:id", getProductById);
+router.get("/getProductById/:productId/:categoryId", getProductById);
 
 router.get("/getSimilarProducts", getSimilarProductsByCategory);
 
