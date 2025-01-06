@@ -31,24 +31,24 @@ const getWishlistItemsById = async (req,res) => {
 //Add Product to Wishlist
 const addWishlistItem = async (req, res) => {
     try {
-        const { product_id, customer_id } = req.body;
+        const { product_id, customer_id, ca_id } = req.body;
 
         // Input validation
         if (!product_id || !customer_id) {
             console.log("Validation failed:", req.body);
             return res.status(400).json({
                 success: false,
-                message: "Required fields are missing: product_id, customer_id, is_active",
+                message: "Required fields are missing: product_id, customer_id, is_active, ca_id",
             });
         }
 
         const sqlQuery = `
             INSERT INTO sg_wishlist (
-                product_id, customer_id, is_active
-            ) VALUES (?, ?, ?)
+                product_id, customer_id, is_active, ca_id
+            ) VALUES (?, ?, ?, ?)
         `;
 
-        const values = [product_id, customer_id, 'true'];
+        const values = [product_id, customer_id, 'true', ca_id];
 
         console.log("Executing query...");
         const result = await db.query(sqlQuery, values); 

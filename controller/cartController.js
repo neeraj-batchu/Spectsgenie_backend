@@ -32,10 +32,10 @@ const getCartItemsById = async (req,res) => {
 const addCartItem = async (req, res) => {
     try {
         console.log("Start of function");
-        const { product_id, lens_package_id, price, customer_id, lens_type_id } = req.body;
+        const { product_id, lens_package_id, price, customer_id, lens_type_id, ca_id } = req.body;
 
         // Input validation
-        if (!product_id || !lens_package_id || !price || !customer_id || !lens_type_id) {
+        if (!product_id || !lens_package_id || !price || !customer_id || !lens_type_id || !ca_id) {
             console.log("Validation failed:", req.body);
             return res.status(400).json({
                 success: false,
@@ -44,11 +44,11 @@ const addCartItem = async (req, res) => {
         }
         const sqlQuery = `
             INSERT INTO sg_cart (
-                product_id, lens_package_id, price, customer_id, lens_type_id
-            ) VALUES (?, ?, ?, ?, ?)
+                product_id, lens_package_id, price, customer_id, lens_type_id, ca_id
+            ) VALUES (?, ?, ?, ?, ?, ?)
         `;
 
-        const values = [product_id, lens_package_id, price, customer_id, lens_type_id];
+        const values = [product_id, lens_package_id, price, customer_id, lens_type_id, ca_id];
 
         console.log("Executing query...");
         const result = await db.query(sqlQuery, values); // Directly use db.query without promisify
@@ -119,7 +119,7 @@ const deleteProductFromCart = async (req, res) => {
 const addContactLensToCart = async (req, res) => {
     try {
         console.log("Start of function");
-        const { product_id, quantity, price, customer_id } = req.body;
+        const { product_id, quantity, price, customer_id,ca_id } = req.body;
 
         // Input validation
         if (!product_id || !price || !customer_id) {
@@ -131,11 +131,11 @@ const addContactLensToCart = async (req, res) => {
         }
         const sqlQuery = `
             INSERT INTO sg_cart (
-                product_id, quantity, price, customer_id
-            ) VALUES (?, ?, ?, ?)
+                product_id, quantity, price, customer_id, ca_id
+            ) VALUES (?, ?, ?, ?, ?)
         `;
 
-        const values = [product_id, quantity, price, customer_id];
+        const values = [product_id, quantity, price, customer_id,ca_id];
 
         console.log("Executing query...");
         const result = await db.query(sqlQuery, values); // Directly use db.query without promisify
