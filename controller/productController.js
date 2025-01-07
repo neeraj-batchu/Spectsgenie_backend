@@ -335,6 +335,50 @@ const getSimilarProductsByCategory = async (req, res) => {
         });
     }
 };
+
+const searchProduct = async (req, res) => {
+  try {
+      const { searchString } = req.body;  // Access searchString from the request body
+
+      if (!searchString) {
+          return res.status(400).send({
+              success: false,
+              message: 'Search string is required'
+          });
+      }
+
+      const query = `
+          SELECT * FROM getProducts 
+          WHERE pr_name LIKE ?
+      `;
+
+      const searchPattern = `%${searchString}%`;  // Prepare the search pattern for LIKE query
+
+      const data = await db.query(query, [searchPattern]);
+
+      if (data.length === 0) {
+          return res.status(404).send({
+              success: false,
+              message: 'No matching products found'
+          });
+      } else {
+          return res.status(200).send({
+              success: true,
+              message: 'Products fetched successfully',
+              data: data,
+              totalRecords: data.length
+          });
+      }
+
+  } catch (error) {
+      console.error('Error:', error);  // Log the error for debugging
+      return res.status(500).send({
+          success: false,
+          message: 'Something went wrong',
+          error: error.message || error
+      });
+  }
+};
   
 
-module.exports = { getAllProducts, getProductById, addProduct, getProductsByDynamicQuery , getWishlistStatusById, getSimilarProductsByCategory};
+module.exports = { searchProduct,getAllProducts, getProductById, addProduct, getProductsByDynamicQuery , getWishlistStatusById, getSimilarProductsByCategory};
