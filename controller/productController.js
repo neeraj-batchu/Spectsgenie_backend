@@ -209,7 +209,7 @@ const addProduct = async (req, res) => {
 }
 
 // Get Products by Dynamic Query (new method)
-const getproductsByDynamicQuery = async (req, res) => {
+const getProductsByDynamicQuery = async (req, res) => {
     const { table, filters, limit, offset } = req.body;
 
     console.log("test")
@@ -381,4 +381,4 @@ const searchProduct = async (req, res) => {
 };
   
 
-module.exports = { searchProduct,getAllProducts, getProductById, addProduct, getproductsByDynamicQuery , getWishlistStatusById, getSimilarProductsByCategory};
+module.exports = { searchProduct,getAllProducts, getProductById, addProduct, getProductsByDynamicQuery , getWishlistStatusById, getSimilarProductsByCategory};
