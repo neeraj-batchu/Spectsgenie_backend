@@ -348,13 +348,13 @@ const searchProduct = async (req, res) => {
       }
 
       const query = `
-          SELECT * FROM getProducts 
-          WHERE pr_name LIKE ?
+          SELECT * FROM fetch_complete_products 
+          WHERE parent_product_name LIKE ? OR pr_description LIKE ? OR pr_name LIKE ? OR slug LIKE ?
       `;
 
       const searchPattern = `%${searchString}%`;  // Prepare the search pattern for LIKE query
 
-      const data = await db.query(query, [searchPattern]);
+      const data = await db.query(query, [searchPattern,searchPattern,searchPattern,searchPattern]);
 
       if (data.length === 0) {
           return res.status(404).send({
@@ -365,8 +365,8 @@ const searchProduct = async (req, res) => {
           return res.status(200).send({
               success: true,
               message: 'Products fetched successfully',
-              data: data,
-              totalRecords: data.length
+              data: data[0],
+                totalRecords: data[0].length
           });
       }
 
