@@ -3,7 +3,7 @@ const db = require("../config/db");
 // Get all Products
 const getAllProducts = async (req, res) => {
     try {
-        const data = await db.query("SELECT * FROM getProducts");
+        const data = await db.query("SELECT * FROM getproducts");
         if (!data) {
             res.status(404).send({
                 success: false,
@@ -209,7 +209,7 @@ const addProduct = async (req, res) => {
 }
 
 // Get Products by Dynamic Query (new method)
-const getProductsByDynamicQuery = async (req, res) => {
+const getproductsByDynamicQuery = async (req, res) => {
     const { table, filters, limit, offset } = req.body;
 
     console.log("test")
@@ -309,7 +309,7 @@ const getSimilarProductsByCategory = async (req, res) => {
 
         // Query the database
         const data = await db.query(
-            "SELECT * FROM getProducts WHERE ca_id = ? and pr_id != ? limit 30", 
+            "SELECT * FROM getproducts WHERE ca_id = ? and pr_id != ? limit 30", 
             [ca_id,pr_id]
         );
 
@@ -381,4 +381,4 @@ const searchProduct = async (req, res) => {
 };
   
 
-module.exports = { searchProduct,getAllProducts, getProductById, addProduct, getProductsByDynamicQuery , getWishlistStatusById, getSimilarProductsByCategory};
+module.exports = { searchProduct,getAllProducts, getProductById, addProduct, getproductsByDynamicQuery , getWishlistStatusById, getSimilarProductsByCategory};

@@ -119,7 +119,7 @@ const deleteProductFromCart = async (req, res) => {
 const addContactLensToCart = async (req, res) => {
     try {
         console.log("Start of function");
-        const { product_id, quantity, price, customer_id,ca_id } = req.body;
+        const { product_id, quantity, price, customer_id, ca_id } = req.body;
 
         // Input validation
         if (!product_id || !price || !customer_id) {
@@ -129,16 +129,19 @@ const addContactLensToCart = async (req, res) => {
                 message: "Required fields are missing: product_id, price, customer_id",
             });
         }
+
         const sqlQuery = `
             INSERT INTO sg_cart (
                 product_id, quantity, price, customer_id, ca_id
             ) VALUES (?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE 
+                quantity = quantity + VALUES(quantity)
         `;
 
-        const values = [product_id, quantity, price, customer_id,ca_id];
+        const values = [product_id, quantity, price, customer_id, ca_id];
 
         console.log("Executing query...");
-        const result = await db.query(sqlQuery, values); // Directly use db.query without promisify
+        const result = await db.query(sqlQuery, values);
 
         console.log("Query successful:", result);
 
