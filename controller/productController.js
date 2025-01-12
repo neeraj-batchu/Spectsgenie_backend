@@ -32,7 +32,6 @@ const getProductById = async (req, res) => {
     try {
       // Extract productId and categoryId from query parameters
       const { productId, categoryId } = req.params;
-        console.log("productId ====== ",productId)
       // Validate productId and categoryId
       if (!productId || !categoryId || isNaN(productId) || isNaN(categoryId)) {
         return res.status(400).send({
@@ -379,6 +378,78 @@ const searchProduct = async (req, res) => {
       });
   }
 };
+
+const getLocalData = async (req, res) => {
+  try {
+    const payload = req.body; // Array of objects from the request body
+
+    if (!Array.isArray(payload) || payload.length === 0) {
+      return res.status(400).send({
+        success: false,
+        message: "Invalid or empty payload",
+      });
+    }
+
+    // Array to hold all results
+    const queryResults = [];
+
+    for (const item of payload) {
+      const { product_id, ca_id } = item;
+
+      if (!product_id || !ca_id || isNaN(product_id) || isNaN(ca_id)) {
+        return res.status(400).send({
+          success: false,
+          message: "Invalid product_id or ca_id in payload",
+        });
+      }
+
+      let queryResult;
+      if (Number(ca_id) === 3) {
+        // Query for categoryId 3
+        queryResult = await db.query(
+          `SELECT * FROM wishlist_temp_lens WHERE product_id = ?`,
+          [product_id]
+        );
+      } else {
+        // Query for other categories
+        queryResult = await db.query(
+          `SELECT * FROM wishlist_temp_products WHERE product_id = ?`,
+          [product_id]
+        );
+      }
+
+      // Flatten and push the results into the same array
+      if (queryResult && Array.isArray(queryResult)) {
+        queryResults.push(...queryResult[0]);
+      }
+    }
+
+    if (queryResults.length === 0) {
+      return res.status(404).send({
+        success: false,
+        message: "No records found",
+        data: [],
+        totalRecords: 0,
+      });
+    }
+
+    return res.status(200).send({
+      success: true,
+      message: "Records fetched",
+      data: queryResults, // Flat structure for all records
+      totalRecords: queryResults.length,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+
   
 
-module.exports = { searchProduct,getAllProducts, getProductById, addProduct, getProductsByDynamicQuery , getWishlistStatusById, getSimilarProductsByCategory};
+module.exports = { searchProduct,getAllProducts, getProductById, addProduct, getProductsByDynamicQuery , getWishlistStatusById, getSimilarProductsByCategory, getLocalData};

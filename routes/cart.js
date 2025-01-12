@@ -1,19 +1,22 @@
 const express = require("express");
-const { getCartItemsById, addCartItem, deleteProductFromCart, addContactLensToCart } = require("../controller/cartController");
-const authenticateToken = require("../middleware/authentiactToken"); // Import the middleware
+const { getCartItemsById, addCartItem, deleteProductFromCart, addContactLensToCart, getLocalCartData, addMultipleCartItems } = require("../controller/cartController");
 
 // Router object
 const router = express.Router();
 
 // Get all cart products (protected route)
-router.get("/myCart/:id", authenticateToken, getCartItemsById);
+router.get("/myCart/:id",  getCartItemsById);
 
 // Add items to cart (protected route)
-router.post("/addToCart", authenticateToken, addCartItem);
+router.post("/addToCart", addCartItem);
 
-router.delete("/deleteFromCart/:id", authenticateToken, deleteProductFromCart);
+router.delete("/deleteFromCart/:id", deleteProductFromCart);
 
-router.post("/addContactLensToCart", authenticateToken, addContactLensToCart);
+router.post("/addContactLensToCart", addContactLensToCart);
+
+router.post("/getLocalCartData", getLocalCartData);
+
+router.post("/addMultipleCartData", addMultipleCartItems);
 
 
 module.exports = router;
