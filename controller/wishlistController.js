@@ -159,5 +159,40 @@ const deleteById = async (req, res) => {
     }
 };
 
+const addMultipleWishlistItems = async (req, res) => {
+    try {
+        const wishlistItems = req.body;
 
-module.exports = {addWishlistItem , getWishlistItemsById, deleteProductFromWishlist, deleteById};
+        if (!Array.isArray(wishlistItems) || wishlistItems.length === 0) {
+            return res.status(400).json({ success: false, message: "Invalid payload format or empty array." });
+        }
+
+        const sqlQuery = `INSERT INTO sg_wishlist (product_id, customer_id, is_active, ca_id) VALUES ? 
+                          ON DUPLICATE KEY UPDATE is_active = VALUES(is_active)`;
+
+        const values = wishlistItems.map(item => [
+            item.product_id,
+            item.customer_id,
+            item.is_active || 'true',
+            item.ca_id
+        ]);
+
+        const [result] = await db.query(sqlQuery, [values]);
+
+        res.status(201).json({
+            success: true,
+            message: `${result.affectedRows} wishlist items added successfully.`
+        });
+    } catch (error) {
+        console.error("Error inserting wishlist items:", error);
+        res.status(500).json({
+            success: false,
+            message: "An error occurred while inserting wishlist items.",
+            error: error.message
+        });
+    }
+};
+
+
+
+module.exports = {addWishlistItem , getWishlistItemsById, deleteProductFromWishlist, deleteById, addMultipleWishlistItems};
